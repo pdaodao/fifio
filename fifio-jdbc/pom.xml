@@ -10,6 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fifio-jdbc</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>fifio-jdbc-api</module>
+        <module>fifio-jdbc-io</module>
+    </modules>
 
 
 </project>

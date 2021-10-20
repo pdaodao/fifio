@@ -10,8 +10,6 @@
     <modules>
         <module>fifio-common</module>
         <module>fifio-jdbc</module>
-        <module>fifio-jdbc/fifio-jdbc-api</module>
-        <module>fifio-jdbc/fifio-jdbc-io</module>
         <module>fifio-kafka</module>
         <module>fifio-elasticsearch</module>
         <module>fifio-odps</module>
