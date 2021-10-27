@@ -3,17 +3,18 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fifio</artifactId>
+        <artifactId>fifio-base</artifactId>
         <groupId>com.github.apengda</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fifio-base</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>fifio-base-api</module>
-    </modules>
+    <artifactId>fifio-base-api</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+    </dependencies>
 </project>

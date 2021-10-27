@@ -9,7 +9,7 @@ dependency-reduced-pom.xml
 
 # BlueJ files
 *.ctxt
-
+MyTest*.java
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
