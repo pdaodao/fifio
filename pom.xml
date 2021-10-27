@@ -8,7 +8,7 @@
     <artifactId>fifio</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>fifio-common</module>
+        <module>fifio-flink-deps</module>
         <module>fifio-jdbc</module>
         <module>fifio-kafka</module>
         <module>fifio-elasticsearch</module>
@@ -21,6 +21,7 @@
         <module>fifio-rabbitmq</module>
         <module>fifio-cdc</module>
         <module>fifio-redis</module>
+        <module>fifio-base</module>
     </modules>
     <packaging>pom</packaging>
 
