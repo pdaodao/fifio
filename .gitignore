@@ -3,7 +3,7 @@ dependency-reduced-pom.xml
 *.iml
 # Compiled class file
 *.class
-
+target/
 # Log file
 *.log
 
