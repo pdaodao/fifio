@@ -1,6 +1,8 @@
 package com.github.apengda.fifio.odps;
 
+import com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalog;
 import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.util.DbUtil;
 import com.github.apengda.fifio.odps.catalog.OdpsCatalog;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.catalog.Catalog;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalogFactoryOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
 public class OdpsCatalogFactory implements CatalogFactory {
@@ -26,10 +29,10 @@ public class OdpsCatalogFactory implements CatalogFactory {
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(OdpsCatalogFactoryOptions.URL);
-        options.add(OdpsCatalogFactoryOptions.PROJECT);
-        options.add(OdpsCatalogFactoryOptions.USERNAME);
-        options.add(OdpsCatalogFactoryOptions.PASSWORD);
+        options.add(DEFAULT_DATABASE);
+        options.add(USERNAME);
+        options.add(PASSWORD);
+        options.add(BASE_URL);
         return options;
     }
 
@@ -45,16 +48,19 @@ public class OdpsCatalogFactory implements CatalogFactory {
         final FactoryUtil.CatalogFactoryHelper helper =
                 FactoryUtil.createCatalogFactoryHelper(this, context);
         helper.validate();
+        String baseUrl = helper.getOptions().get(BASE_URL);
+        String defaultDbName = helper.getOptions().get(DEFAULT_DATABASE);
 
         DbInfo dbInfo = new DbInfo(
-                helper.getOptions().get(OdpsCatalogFactoryOptions.URL),
-                helper.getOptions().get(OdpsCatalogFactoryOptions.USERNAME),
-                helper.getOptions().get(OdpsCatalogFactoryOptions.PASSWORD)
+                baseUrl,
+                helper.getOptions().get(USERNAME),
+                helper.getOptions().get(PASSWORD));
+        dbInfo.setDbType("odps");
+        dbInfo.setDbName(defaultDbName);
 
-        );
-        dbInfo.setDbName(helper.getOptions().get(OdpsCatalogFactoryOptions.PROJECT));
-        return new OdpsCatalog(context.getName(),
-                helper.getOptions().get(OdpsCatalogFactoryOptions.PROJECT),
+        return new OdpsCatalog(
+                context.getName(),
+                defaultDbName,
                 dbInfo);
     }
 }

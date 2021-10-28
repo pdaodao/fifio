@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.flink.connector.jdbc.catalog.factory.JdbcCatalogFactoryOptions.*;
+import static com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalogFactoryOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
 public class MyJdbcCatalogFactory implements CatalogFactory {
@@ -22,7 +22,7 @@ public class MyJdbcCatalogFactory implements CatalogFactory {
 
     @Override
     public String factoryIdentifier() {
-        return "myjdbc";
+        return IDENTIFIER;
     }
 
     @Override
