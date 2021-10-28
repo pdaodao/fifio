@@ -4,7 +4,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
 public class DbUtil {
-
+    public static final String[] TABLE = {"TABLE"};
+    public static final String[] VIEW = {"VIEW"};
 
     public static String getTableSchema(String tableName) {
         if (tableName == null) {

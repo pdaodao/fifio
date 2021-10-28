@@ -1,16 +1,22 @@
 package com.github.apengda.fifio.jdbc.catalog;
 
-import com.github.apengda.fifio.jdbc.JdbcDialect;
-import com.github.apengda.fifio.jdbc.JdbcDialects;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.DbMetaDialectLoader;
 import com.github.apengda.fifio.jdbc.frame.TableInfo;
-import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
+import org.apache.flink.connector.jdbc.catalog.JdbcCatalogUtils;
+import org.apache.flink.connector.jdbc.table.JdbcDynamicTableFactory;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Schema;
+import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.*;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
+import org.apache.flink.table.factories.Factory;
 import org.apache.flink.table.types.UnresolvedDataType;
+import org.apache.flink.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,15 +26,52 @@ import java.util.*;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.*;
 import static org.apache.flink.connector.jdbc.table.JdbcDynamicTableFactory.IDENTIFIER;
 import static org.apache.flink.table.factories.FactoryUtil.CONNECTOR;
+import static org.apache.flink.util.Preconditions.checkArgument;
 
 
-public class MyJdbcCatalog extends AbstractJdbcCatalog {
-    private final JdbcDialect jdbcDialect;
+public class MyJdbcCatalog extends AbstractDbMetaCatalog {
+    private static final Logger LOG = LoggerFactory.getLogger(MyJdbcCatalog.class);
+    protected final String username;
+    protected final String pwd;
+    protected final String baseUrl;
+    protected final String defaultUrl;
+
+    private final DbMetaDialect jdbcDialect;
 
     public MyJdbcCatalog(String catalogName, String defaultDatabase, String username, String pwd, String baseUrl) {
-        super(catalogName, defaultDatabase, username, pwd, baseUrl);
-        this.jdbcDialect = JdbcDialects.get(baseUrl).orElseThrow(() -> new IllegalArgumentException("unsupported database " + baseUrl));
+        super(catalogName, defaultDatabase);
+
+        checkArgument(!StringUtils.isNullOrWhitespaceOnly(username));
+        checkArgument(!StringUtils.isNullOrWhitespaceOnly(pwd));
+        checkArgument(!StringUtils.isNullOrWhitespaceOnly(baseUrl));
+
+        JdbcCatalogUtils.validateJdbcUrl(baseUrl);
+
+        this.username = username;
+        this.pwd = pwd;
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        this.defaultUrl = this.baseUrl + defaultDatabase;
+        this.jdbcDialect = DbMetaDialectLoader.load(baseUrl, null);
     }
+
+    @Override
+    public void open() throws CatalogException {
+        // test connection, fail early if we cannot connect to database
+        try (Connection conn = DriverManager.getConnection(defaultUrl, username, pwd)) {
+        } catch (SQLException e) {
+            throw new ValidationException(
+                    String.format("Failed connecting to %s via JDBC.", defaultUrl), e);
+        }
+
+        LOG.info("Catalog {} established connection to {}", getName(), defaultUrl);
+    }
+
+
+    @Override
+    public Optional<Factory> getFactory() {
+        return Optional.of(new JdbcDynamicTableFactory());
+    }
+
 
     @Override
     public List<String> listDatabases() throws CatalogException {
@@ -67,6 +110,19 @@ public class MyJdbcCatalog extends AbstractJdbcCatalog {
         } catch (Exception e) {
             throw new CatalogException(
                     String.format("Failed listing table in catalog %s", getName()), e);
+        }
+    }
+
+    @Override
+    public List<String> listViews(String databaseName) throws DatabaseNotExistException, CatalogException {
+        if (!databaseExists(databaseName)) {
+            throw new DatabaseNotExistException(getName(), databaseName);
+        }
+        try (Connection conn = getConnection(databaseName)) {
+            return jdbcDialect.listViews(conn, databaseName);
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("Failed listing view in catalog %s", getName()), e);
         }
     }
 

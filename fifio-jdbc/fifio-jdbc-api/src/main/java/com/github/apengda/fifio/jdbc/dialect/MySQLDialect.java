@@ -1,10 +1,10 @@
 package com.github.apengda.fifio.jdbc.dialect;
 
-import com.github.apengda.fifio.jdbc.JdbcDialect;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
 
 import java.util.Optional;
 
-public class MySQLDialect extends CommonMetaDialect implements JdbcDialect {
+public class MySQLDialect extends CommonMetaDialect implements DbMetaDialect {
     @Override
     public String dialectName() {
         return "MySQL";
@@ -13,14 +13,6 @@ public class MySQLDialect extends CommonMetaDialect implements JdbcDialect {
     @Override
     public Integer fetchSize() {
         return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public boolean canHandle(String url) {
-        if (url == null) {
-            return false;
-        }
-        return url.startsWith("jdbc:mysql:");
     }
 
     @Override

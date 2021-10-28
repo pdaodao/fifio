@@ -1,25 +1,17 @@
 package com.github.apengda.fifio.jdbc.dialect;
 
-import com.github.apengda.fifio.jdbc.JdbcDialect;
-import com.github.apengda.fifio.jdbc.JdbcDialects;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
 import com.github.apengda.fifio.jdbc.frame.TableInfo;
 import com.github.apengda.fifio.jdbc.util.DbUtil;
 
 import java.sql.*;
 import java.util.*;
 
-public class CommonMetaDialect implements JdbcDialect {
+public class CommonMetaDialect implements DbMetaDialect {
+
     @Override
     public String dialectName() {
         return "CommonJdbc";
-    }
-
-    @Override
-    public boolean canHandle(String url) {
-        if (url == null) {
-            return false;
-        }
-        return url.startsWith("jdbc");
     }
 
     @Override
@@ -33,15 +25,14 @@ public class CommonMetaDialect implements JdbcDialect {
         return dbs;
     }
 
-
     @Override
     public List<String> listTables(Connection connection, String databaseName, String tablePattern) throws SQLException {
-        return listTables(connection, databaseName, tablePattern, JdbcDialects.TABLE);
+        return listTables(connection, databaseName, tablePattern, DbUtil.TABLE);
     }
 
     @Override
     public List<String> listViews(Connection connection, String databaseName) throws SQLException {
-        return listTables(connection, databaseName, null, JdbcDialects.VIEW);
+        return listTables(connection, databaseName, null, DbUtil.VIEW);
     }
 
     protected List<String> listTables(Connection connection, String databaseName, String tablePattern, String[] tableType) throws SQLException {
@@ -139,15 +130,19 @@ public class CommonMetaDialect implements JdbcDialect {
         if (tableColumn.typeName == null) {
             throw new IllegalArgumentException(String.format("column '%s' type name is empty", tableColumn.name));
         }
-        final String typeName = tableColumn.typeName.trim().toLowerCase();
-        String type = doFromJdbcType(typeName, tableColumn.size, tableColumn.scale);
-        if (!tableColumn.nullable) {
-            type = type + " NOT NULL";
+        try {
+            final String typeName = tableColumn.typeName.trim().toLowerCase();
+            String type = doFromJdbcType(typeName, tableColumn.size, tableColumn.scale);
+            if (!tableColumn.nullable) {
+                type = type + " NOT NULL";
+            }
+            if (typeName.startsWith("_")) {
+                return "ARRAY<" + type + ">";
+            }
+            return type;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(String.format("column '%s' type  '%s'  convert to flink error", tableColumn.name, tableColumn.typeName, e));
         }
-        if (typeName.startsWith("_")) {
-            return "ARRAY<" + type + ">";
-        }
-        return type;
     }
 
     protected String doFromJdbcType(String typeName, Integer size, Integer scale) {
@@ -170,14 +165,14 @@ public class CommonMetaDialect implements JdbcDialect {
         if (typeName.contains("bool")) {
             return "BOOLEAN";
         }
-        if (typeName.equalsIgnoreCase("bit") && 1 == size) {
+        if (typeName.equalsIgnoreCase("bit")) {
             return "BOOLEAN";
         }
         if (typeName.contains("byte") || typeName.contains("binary") || typeName.contains("blob")) {
             return "BYTES";
         }
         if (typeName.contains("int") || typeName.contains("serial")) {
-            if (typeName.contains("tinyint") && 1 == size) {
+            if (typeName.contains("tinyint") && size != null && 1 == size) {
                 return "BOOLEAN";
             }
             if (typeName.contains("int2") || typeName.equals("smallint") || typeName.contains("tinyint")) {
@@ -204,7 +199,7 @@ public class CommonMetaDialect implements JdbcDialect {
         }
 
         if (typeName.contains("numeric") || typeName.contains("decimal")) {
-            if (size != null && size > 0 && scale != null) {
+            if (size != null && scale != null && size > 0) {
                 return String.format("DECIMAL(%d,%d)", size, scale);
             }
             return "DECIMAL(38,18)";

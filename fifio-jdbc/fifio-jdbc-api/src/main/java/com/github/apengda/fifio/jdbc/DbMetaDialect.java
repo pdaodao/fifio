@@ -7,15 +7,13 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface JdbcDialect {
+public interface DbMetaDialect {
 
     String dialectName();
 
     default Integer fetchSize() {
         return null;
     }
-
-    boolean canHandle(String url);
 
     default Optional<String> defaultDriverName() {
         return Optional.empty();

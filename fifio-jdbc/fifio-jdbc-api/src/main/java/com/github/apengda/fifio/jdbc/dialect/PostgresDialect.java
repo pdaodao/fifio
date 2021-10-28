@@ -1,21 +1,13 @@
 package com.github.apengda.fifio.jdbc.dialect;
 
-import com.github.apengda.fifio.jdbc.JdbcDialect;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
 
 import java.util.Optional;
 
-public class PostgresDialect extends CommonMetaDialect implements JdbcDialect {
+public class PostgresDialect extends CommonMetaDialect implements DbMetaDialect {
     @Override
     public String dialectName() {
         return "PostgreSQL";
-    }
-
-    @Override
-    public boolean canHandle(String url) {
-        if (url == null) {
-            return false;
-        }
-        return url.startsWith("jdbc:postgresql:");
     }
 
     @Override
