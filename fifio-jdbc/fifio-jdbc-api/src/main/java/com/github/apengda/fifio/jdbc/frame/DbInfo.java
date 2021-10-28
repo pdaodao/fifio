@@ -10,6 +10,10 @@ public class DbInfo implements Serializable {
     protected final String username;
     @Nullable
     protected final String password;
+    @Nullable
+    protected String dbName;
+    @Nullable
+    protected String dbType;
 
     public DbInfo(String url, String username, String password) {
         this.url = url;
@@ -27,5 +31,24 @@ public class DbInfo implements Serializable {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getDbType() {
+        return dbType;
+    }
+
+    public DbInfo setDbType(String dbType) {
+        this.dbType = dbType;
+        return this;
+    }
+
+    @Nullable
+    public String getDbName() {
+        return dbName;
+    }
+
+    public DbInfo setDbName(@Nullable String dbName) {
+        this.dbName = dbName;
+        return this;
     }
 }

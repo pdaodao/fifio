@@ -1,9 +1,8 @@
 package com.github.apengda.fifio.jdbc;
 
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import com.github.apengda.fifio.jdbc.frame.TableInfo;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,13 +22,15 @@ public interface DbMetaDialect {
         return "\"" + identifier + "\"";
     }
 
-    List<String> listDatabases(Connection connection) throws SQLException;
+    String test(final DbInfo dbInfo) throws Exception;
 
-    List<String> listTables(Connection connection, String databaseName, String tablePattern) throws SQLException;
+    List<String> listDatabases(final DbInfo dbInfo) throws Exception;
 
-    List<String> listViews(Connection connection, String databaseName) throws SQLException;
+    List<String> listTables(final DbInfo dbInfo, String databaseName, String tablePattern) throws Exception;
 
-    TableInfo tableInfo(Connection connection, String databaseName, String tableName) throws SQLException;
+    List<String> listViews(final DbInfo dbInfo, String databaseName) throws Exception;
+
+    TableInfo tableInfo(final DbInfo dbInfo, String databaseName, String tableName) throws Exception;
 
     String toFlinkType(TableInfo.TableColumn tableColumn);
 }

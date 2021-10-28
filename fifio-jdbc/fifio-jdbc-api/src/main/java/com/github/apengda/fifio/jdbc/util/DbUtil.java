@@ -7,6 +7,30 @@ public class DbUtil {
     public static final String[] TABLE = {"TABLE"};
     public static final String[] VIEW = {"VIEW"};
 
+
+    public static String buildUrl(final String url, String databaseName) {
+        if (url == null) {
+            return null;
+        }
+        if (databaseName == null || databaseName.length() < 1) {
+            return url;
+        }
+        databaseName = databaseName.trim();
+        String baseUrl = url;
+        String baseUrlParams = "";
+        if (url.contains("?")) {
+            baseUrl = baseUrl.substring(0, baseUrl.indexOf("?"));
+            baseUrlParams = baseUrl.substring(baseUrl.indexOf("?"));
+        }
+        String[] parts = baseUrl.trim().split("\\/+");
+        if (parts.length == 2 || parts.length == 3) {
+            baseUrl = parts[0] + "//" + parts[1] + "/" + databaseName;
+        } else {
+            throw new IllegalArgumentException(String.format("invalid jdbc connection url '%s'", url));
+        }
+        return baseUrl + baseUrlParams;
+    }
+
     public static String getTableSchema(String tableName) {
         if (tableName == null) {
             return null;

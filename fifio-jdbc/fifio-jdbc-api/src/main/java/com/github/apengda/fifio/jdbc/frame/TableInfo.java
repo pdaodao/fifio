@@ -2,6 +2,7 @@ package com.github.apengda.fifio.jdbc.frame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TableInfo {
     private final String databaseName;
@@ -66,6 +67,14 @@ public class TableInfo {
         public TableColumn(String name, String typeName) {
             this.name = name;
             this.typeName = typeName;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", TableColumn.class.getSimpleName() + "[", "]")
+                    .add("name='" + name + "'")
+                    .add("typeName='" + typeName + "'")
+                    .toString();
         }
     }
 }

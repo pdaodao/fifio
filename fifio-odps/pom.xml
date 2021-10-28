@@ -14,6 +14,7 @@
     <modules>
         <module>fifio-odps-api</module>
         <module>fifio-odps-io</module>
+        <module>fifio-odps-test</module>
     </modules>
 
 

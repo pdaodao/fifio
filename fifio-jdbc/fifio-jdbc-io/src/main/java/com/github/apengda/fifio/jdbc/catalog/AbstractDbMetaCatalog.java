@@ -1,35 +1,146 @@
 package com.github.apengda.fifio.jdbc.catalog;
 
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.DbMetaDialectLoader;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.TableInfo;
 import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.api.Schema;
+import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.*;
 import org.apache.flink.table.catalog.exceptions.*;
 import org.apache.flink.table.catalog.stats.CatalogColumnStatistics;
 import org.apache.flink.table.catalog.stats.CatalogTableStatistics;
 import org.apache.flink.table.expressions.Expression;
+import org.apache.flink.table.types.UnresolvedDataType;
 import org.apache.flink.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 public abstract class AbstractDbMetaCatalog extends AbstractCatalog {
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcCatalog.class);
+    protected final DbMetaDialect jdbcDialect;
+    protected final DbInfo dbInfo;
 
     public AbstractDbMetaCatalog(
             String catalogName,
-            String defaultDatabase) {
+            String defaultDatabase,
+            DbInfo dbInfo) {
         super(catalogName, defaultDatabase);
+        this.dbInfo = dbInfo;
+        checkArgument(!StringUtils.isNullOrWhitespaceOnly(dbInfo.getUsername()));
+        checkArgument(!StringUtils.isNullOrWhitespaceOnly(dbInfo.getPassword()));
+        jdbcDialect = DbMetaDialectLoader.load(dbInfo.getUrl(), dbInfo.getDbType());
     }
 
+    @Override
+    public void open() throws CatalogException {
+        try {
+            String version = jdbcDialect.test(dbInfo);
+            LOG.info("{} test success [{}]", dbInfo.getUrl(), version);
+        } catch (Exception e) {
+            throw new ValidationException(
+                    String.format("Failed connecting to %s.", dbInfo.getUrl()), e);
+        }
+        LOG.info("Catalog {} established connection to {}", getName(), dbInfo.getUrl());
+    }
+
+    @Override
+    public List<String> listDatabases() throws CatalogException {
+        try {
+            return jdbcDialect.listDatabases(dbInfo);
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("Failed listing database in catalog %s", getName()), e);
+        }
+    }
+
+    @Override
+    public CatalogDatabase getDatabase(String databaseName) throws DatabaseNotExistException, CatalogException {
+        if (listDatabases().contains(databaseName)) {
+            return new CatalogDatabaseImpl(Collections.emptyMap(), null);
+        } else {
+            throw new DatabaseNotExistException(getName(), databaseName);
+        }
+    }
+
+    @Override
+    public List<String> listTables(String databaseName) throws DatabaseNotExistException, CatalogException {
+        if (!databaseExists(databaseName)) {
+            throw new DatabaseNotExistException(getName(), databaseName);
+        }
+        try {
+            return jdbcDialect.listTables(dbInfo, databaseName, null);
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("Failed listing table in catalog %s", getName()), e);
+        }
+    }
+
+    @Override
+    public List<String> listViews(String databaseName) throws DatabaseNotExistException, CatalogException {
+        if (!databaseExists(databaseName)) {
+            throw new DatabaseNotExistException(getName(), databaseName);
+        }
+        try {
+            return jdbcDialect.listViews(dbInfo, databaseName);
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("Failed listing view in catalog %s", getName()), e);
+        }
+    }
+
+    @Override
+    public CatalogBaseTable getTable(ObjectPath tablePath) throws TableNotExistException, CatalogException {
+        if (!tableExists(tablePath)) {
+            throw new TableNotExistException(getName(), tablePath);
+        }
+        try {
+            final TableInfo tableInfo = jdbcDialect.tableInfo(dbInfo, tablePath.getDatabaseName(), tablePath.getObjectName());
+            final Schema.Builder schemaBuilder = Schema.newBuilder();
+            if (tableInfo.getPkFields() != null && !tableInfo.getPkFields().isEmpty()) {
+                schemaBuilder.primaryKeyNamed(tableInfo.getPkName(), tableInfo.getPkFields());
+            }
+            for (TableInfo.TableColumn column : tableInfo.getColumnList()) {
+                final UnresolvedDataType type = DataTypes.of(jdbcDialect.toFlinkType(column));
+                schemaBuilder.column(column.name, type);
+            }
+            final Map<String, String> props = buildTableProps(tablePath);
+            return CatalogTable.of(schemaBuilder.build(), null, new ArrayList<>(), props);
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("Failed getting table %s", tablePath.getFullName()), e);
+        }
+    }
+
+    @Override
+    public boolean tableExists(ObjectPath objectPath) throws CatalogException {
+        final String databaseName = objectPath.getDatabaseName();
+        try {
+            List<String> ts = jdbcDialect.listTables(dbInfo, databaseName, objectPath.getObjectName());
+            return ts.size() > 0;
+        } catch (Exception e) {
+            throw new CatalogException(
+                    String.format("check table exists of '%s' failed  in catalog %s", objectPath.getObjectName(), getName()), e);
+        }
+    }
+
+    protected abstract Map<String, String> buildTableProps(ObjectPath tablePath);
 
     @Override
     public void close() throws CatalogException {
         LOG.info("Catalog {} closing", getName());
     }
+
+    ///////////
 
     @Override
     public boolean databaseExists(String databaseName) throws CatalogException {
@@ -83,11 +194,6 @@ public abstract class AbstractDbMetaCatalog extends AbstractCatalog {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public List<String> listViews(String databaseName)
-            throws DatabaseNotExistException, CatalogException {
-        return Collections.emptyList();
-    }
 
     // ------ partitions ------
 

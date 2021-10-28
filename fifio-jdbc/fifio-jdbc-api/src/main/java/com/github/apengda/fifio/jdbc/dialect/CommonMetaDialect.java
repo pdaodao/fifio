@@ -1,6 +1,7 @@
 package com.github.apengda.fifio.jdbc.dialect;
 
 import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import com.github.apengda.fifio.jdbc.frame.TableInfo;
 import com.github.apengda.fifio.jdbc.util.DbUtil;
 
@@ -15,111 +16,130 @@ public class CommonMetaDialect implements DbMetaDialect {
     }
 
     @Override
-    public List<String> listDatabases(Connection connection) throws SQLException {
-        final List<String> dbs = new ArrayList<>();
-        try (ResultSet rs = connection.getMetaData().getCatalogs()) {
-            while (rs.next()) {
-                dbs.add(rs.getString(1));
-            }
+    public String test(DbInfo dbInfo) throws Exception {
+        try (Connection connection = getConnection(dbInfo, null)) {
+            final DatabaseMetaData meta = connection.getMetaData();
+            return meta.getDatabaseProductName() + "(" + meta.getDatabaseProductVersion() + ")";
         }
-        return dbs;
     }
 
     @Override
-    public List<String> listTables(Connection connection, String databaseName, String tablePattern) throws SQLException {
-        return listTables(connection, databaseName, tablePattern, DbUtil.TABLE);
+    public List<String> listDatabases(final DbInfo dbInfo) throws SQLException {
+        try (Connection connection = getConnection(dbInfo, null)) {
+            final List<String> dbs = new ArrayList<>();
+            try (ResultSet rs = connection.getMetaData().getCatalogs()) {
+                while (rs.next()) {
+                    dbs.add(rs.getString(1));
+                }
+            }
+            return dbs;
+        }
     }
 
     @Override
-    public List<String> listViews(Connection connection, String databaseName) throws SQLException {
-        return listTables(connection, databaseName, null, DbUtil.VIEW);
-    }
-
-    protected List<String> listTables(Connection connection, String databaseName, String tablePattern, String[] tableType) throws SQLException {
-        final DatabaseMetaData metaData = connection.getMetaData();
-        final List<String> tables = new ArrayList<>();
-        String schemaPattern = null;
-        String tableNamePattern = null;
-        if (tablePattern != null) {
-            schemaPattern = DbUtil.getTableSchema(tablePattern);
-            tableNamePattern = DbUtil.getTableName(tablePattern);
-        }
-        try (ResultSet rs = metaData.getTables(databaseName, schemaPattern, tableNamePattern, tableType)) {
-            while (rs.next()) {
-                String schema = rs.getString("TABLE_SCHEM");
-                String tableName = rs.getString("TABLE_NAME");
-                if (schema == null) {
-                    tables.add(tableName);
-                } else {
-                    tables.add(schema + "." + tableName);
-                }
-            }
-        }
-        return tables;
+    public List<String> listTables(final DbInfo dbInfo, String databaseName, String tablePattern) throws SQLException {
+        return listTables(dbInfo, databaseName, tablePattern, DbUtil.TABLE);
     }
 
     @Override
-    public TableInfo tableInfo(final Connection connection, final String databaseName, final String tableName) throws SQLException {
-        final DatabaseMetaData meta = connection.getMetaData();
-        final TableInfo tableInfo = new TableInfo(databaseName, tableName);
+    public List<String> listViews(final DbInfo dbInfo, String databaseName) throws SQLException {
+        return listTables(dbInfo, databaseName, null, DbUtil.VIEW);
+    }
 
-        try (ResultSet rs = meta.getColumns(databaseName, DbUtil.getTableSchema(tableName), DbUtil.getTableName(tableName), null)) {
-            final Map<String, Boolean> rsFieldMap = new HashMap<>();
-            final ResultSetMetaData rsMeta = rs.getMetaData();
-            int count = rsMeta.getColumnCount();
-            for (int i = 1; i <= count; i++) {
-                rsFieldMap.put(rsMeta.getColumnLabel(i), true);
+    protected List<String> listTables(final DbInfo dbInfo, String databaseName, String tablePattern, String[] tableType) throws SQLException {
+        try (Connection connection = getConnection(dbInfo, databaseName)) {
+            final DatabaseMetaData metaData = connection.getMetaData();
+            final List<String> tables = new ArrayList<>();
+            String schemaPattern = null;
+            String tableNamePattern = null;
+            if (tablePattern != null) {
+                schemaPattern = DbUtil.getTableSchema(tablePattern);
+                tableNamePattern = DbUtil.getTableName(tablePattern);
             }
-            while (rs.next()) {
-                String columnName = rs.getString("COLUMN_NAME");
-                String typeName = rs.getString("TYPE_NAME");
-                TableInfo.TableColumn columnInfo = new TableInfo.TableColumn(columnName, typeName);
-                tableInfo.addColumn(columnInfo);
-
-                columnInfo.position = rs.getInt("ORDINAL_POSITION");
-                columnInfo.remark = rs.getString("REMARKS");
-
-                if (rs.getString("COLUMN_SIZE") != null) {
-                    columnInfo.size = rs.getInt("COLUMN_SIZE");
-                }
-                if (rs.getString("DECIMAL_DIGITS") != null) {
-                    columnInfo.scale = rs.getInt("DECIMAL_DIGITS");
-                }
-                if (rsFieldMap.containsKey("IS_AUTOINCREMENT")) {
-                    String autoincrement = rs.getString("IS_AUTOINCREMENT");
-                    if ("YES".equalsIgnoreCase(autoincrement)) {
-                        columnInfo.autoIncrement = true;
+            try (ResultSet rs = metaData.getTables(databaseName, schemaPattern, tableNamePattern, tableType)) {
+                while (rs.next()) {
+                    String schema = rs.getString("TABLE_SCHEM");
+                    String tableName = rs.getString("TABLE_NAME");
+                    if (schema == null) {
+                        tables.add(tableName);
+                    } else {
+                        tables.add(schema + "." + tableName);
                     }
                 }
-                String nullable = rs.getString("IS_NULLABLE");
-                if ("NO".equalsIgnoreCase(nullable)) {
-                    columnInfo.nullable = false;
+            }
+            return tables;
+        }
+    }
+
+    @Override
+    public TableInfo tableInfo(final DbInfo dbInfo, final String databaseName, final String tableName) throws SQLException {
+        try (Connection connection = getConnection(dbInfo, databaseName)) {
+            final DatabaseMetaData meta = connection.getMetaData();
+            final TableInfo tableInfo = new TableInfo(databaseName, tableName);
+
+            try (ResultSet rs = meta.getColumns(databaseName, DbUtil.getTableSchema(tableName), DbUtil.getTableName(tableName), null)) {
+                final Map<String, Boolean> rsFieldMap = new HashMap<>();
+                final ResultSetMetaData rsMeta = rs.getMetaData();
+                int count = rsMeta.getColumnCount();
+                for (int i = 1; i <= count; i++) {
+                    rsFieldMap.put(rsMeta.getColumnLabel(i), true);
+                }
+                while (rs.next()) {
+                    String columnName = rs.getString("COLUMN_NAME");
+                    String typeName = rs.getString("TYPE_NAME");
+                    TableInfo.TableColumn columnInfo = new TableInfo.TableColumn(columnName, typeName);
+                    tableInfo.addColumn(columnInfo);
+
+                    columnInfo.position = rs.getInt("ORDINAL_POSITION");
+                    columnInfo.remark = rs.getString("REMARKS");
+
+                    if (rs.getString("COLUMN_SIZE") != null) {
+                        columnInfo.size = rs.getInt("COLUMN_SIZE");
+                    }
+                    if (rs.getString("DECIMAL_DIGITS") != null) {
+                        columnInfo.scale = rs.getInt("DECIMAL_DIGITS");
+                    }
+                    if (rsFieldMap.containsKey("IS_AUTOINCREMENT")) {
+                        String autoincrement = rs.getString("IS_AUTOINCREMENT");
+                        if ("YES".equalsIgnoreCase(autoincrement)) {
+                            columnInfo.autoIncrement = true;
+                        }
+                    }
+                    String nullable = rs.getString("IS_NULLABLE");
+                    if ("NO".equalsIgnoreCase(nullable)) {
+                        columnInfo.nullable = false;
+                    }
                 }
             }
-        }
-        Collections.sort(tableInfo.getColumnList(), (o1, o2) -> Integer.compare(o1.position, o2.position));
+            Collections.sort(tableInfo.getColumnList(), (o1, o2) -> Integer.compare(o1.position, o2.position));
 
-        // pk
-        try (ResultSet rs = meta.getPrimaryKeys(null, DbUtil.getTableSchema(tableName),
-                DbUtil.getTableName(tableName))) {
-            Map<Integer, String> keySeqColumnName = new HashMap<>();
-            String pkName = null;
-            while (rs.next()) {
-                String columnName = rs.getString("COLUMN_NAME");
-                pkName = rs.getString("PK_NAME"); // all the PK_NAME should be the same
-                int keySeq = rs.getInt("KEY_SEQ");
-                keySeqColumnName.put(keySeq - 1, columnName); // KEY_SEQ is 1-based index
+            // pk
+            try (ResultSet rs = meta.getPrimaryKeys(databaseName, DbUtil.getTableSchema(tableName),
+                    DbUtil.getTableName(tableName))) {
+                Map<Integer, String> keySeqColumnName = new HashMap<>();
+                String pkName = null;
+                while (rs.next()) {
+                    String columnName = rs.getString("COLUMN_NAME");
+                    pkName = rs.getString("PK_NAME"); // all the PK_NAME should be the same
+                    int keySeq = rs.getInt("KEY_SEQ");
+                    keySeqColumnName.put(keySeq - 1, columnName); // KEY_SEQ is 1-based index
+                }
+                final List<String> pkFields =
+                        Arrays.asList(new String[keySeqColumnName.size()]);
+                keySeqColumnName.forEach(pkFields::set);
+                tableInfo.setPkFields(pkFields);
+                if (!pkFields.isEmpty()) {
+                    pkName = pkName == null ? "pk_" + String.join("_", pkFields) : pkName;
+                    tableInfo.setPkName(pkName);
+                }
             }
-            final List<String> pkFields =
-                    Arrays.asList(new String[keySeqColumnName.size()]);
-            keySeqColumnName.forEach(pkFields::set);
-            tableInfo.setPkFields(pkFields);
-            if (!pkFields.isEmpty()) {
-                pkName = pkName == null ? "pk_" + String.join("_", pkFields) : pkName;
-                tableInfo.setPkName(pkName);
-            }
+            return tableInfo;
         }
-        return tableInfo;
+    }
+
+    protected Connection getConnection(DbInfo dbInfo, String databaseName) throws SQLException {
+        final String url = DbUtil.buildUrl(dbInfo.getUrl(), databaseName);
+        return DriverManager.getConnection(url, dbInfo.getUsername(), dbInfo.getPassword());
     }
 
     @Override
