@@ -2,6 +2,8 @@
 apache flink source sink io
 
 ## jdbc source sink 
+
+support mysql、oracle、pg、sqlserver...
 ```sql
 CREATE CATALOG hello WITH(
     'type' = 'myjdbc',
@@ -27,9 +29,9 @@ CREATE CATALOG hello WITH(
 ```sql
 CREATE CATALOG hello WITH(
     'type' = 'elasticsearch',
-    'base-url' = 'http://127.0.0.1:9090',
-    'username' = 'access-id', 
-    'password' = 'access-key'
+    'base-url' = 'http://127.0.0.1:9200',
+    'username' = 'elastic', 
+    'password' = 'elastic'
 );
 ```
 
