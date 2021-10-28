@@ -1,5 +1,6 @@
-# fifio
-apache flink source sink io
+# fifio 
+
+apache flink source sink io (support apache flink 1.14.0)
 
 ## jdbc source sink 
 
