@@ -14,6 +14,7 @@
     <modules>
         <module>fifio-kafka-io</module>
         <module>fifio-kafka-api</module>
+        <module>fifio-kafka-test</module>
     </modules>
 
 

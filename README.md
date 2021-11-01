@@ -17,13 +17,28 @@ CREATE CATALOG hello WITH(
 
 ## odps source sink
 ```sql
-CREATE CATALOG hello WITH(
+CREATE CATALOG odps WITH(
     'type' = 'odps',
-    'base-url' = 'https://odps.service.aliyun.com'
+    'base-url' = 'http://service.cn.maxcompute.aliyun.com/api'
     'default-database' = 'hello',
     'username' = 'access-id', 
     'password' = 'access-key'
 );
+
+CREATE TABLE MyUserTable (
+  id BIGINT,
+  name STRING,
+  age INT,
+  status BOOLEAN,
+  PRIMARY KEY (id) NOT ENFORCED
+) WITH (
+   'connector' = 'odps',
+   'url' = 'http://service.cn.maxcompute.aliyun.com/api',
+   'project' = 'users',
+   'access-id' = 'access-id',
+   'access-key' = 'access-key',
+);
+
 ```
 
 ## elasticsearch source sink

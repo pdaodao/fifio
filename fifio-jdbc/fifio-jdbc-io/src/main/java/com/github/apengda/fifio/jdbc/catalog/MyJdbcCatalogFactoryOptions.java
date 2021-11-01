@@ -21,5 +21,6 @@ public class MyJdbcCatalogFactoryOptions {
     public static final ConfigOption<String> BASE_URL =
             ConfigOptions.key("base-url").stringType().noDefaultValue();
 
-    private MyJdbcCatalogFactoryOptions() {}
+    private MyJdbcCatalogFactoryOptions() {
+    }
 }

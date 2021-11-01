@@ -4,7 +4,6 @@ import com.github.apengda.fifio.jdbc.DbMetaDialect;
 import com.github.apengda.fifio.jdbc.DbMetaDialectLoader;
 import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import com.github.apengda.fifio.jdbc.frame.TableInfo;
-import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Schema;
 import org.apache.flink.table.api.ValidationException;
@@ -26,7 +25,7 @@ import java.util.Map;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 public abstract class AbstractDbMetaCatalog extends AbstractCatalog {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcCatalog.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDbMetaCatalog.class);
     protected final DbMetaDialect jdbcDialect;
     protected final DbInfo dbInfo;
 
