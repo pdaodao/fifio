@@ -4,10 +4,10 @@ import com.aliyun.odps.Odps;
 import com.aliyun.odps.OdpsType;
 import com.aliyun.odps.Table;
 import com.aliyun.odps.TableFilter;
-import com.github.apengda.fifio.jdbc.DbMetaDialect;
-import com.github.apengda.fifio.jdbc.frame.DbInfo;
-import com.github.apengda.fifio.jdbc.frame.TableInfo;
-import com.github.apengda.fifio.jdbc.util.DbUtil;
+import com.github.apengda.fifio.elasticsearch.DbMetaDialect;
+import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
+import com.github.apengda.fifio.elasticsearch.frame.TableInfo;
+import com.github.apengda.fifio.elasticsearch.util.DbUtil;
 import com.github.apengda.fifio.odps.util.OdpsUtil;
 import com.google.common.collect.Lists;
 

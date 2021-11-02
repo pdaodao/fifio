@@ -14,6 +14,7 @@
     <modules>
         <module>fifio-elasticsearch-api</module>
         <module>fifio-elasticsearch-io</module>
+        <module>fifio-elasticsearch-test</module>
     </modules>
 
 

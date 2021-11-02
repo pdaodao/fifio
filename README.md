@@ -51,3 +51,13 @@ CREATE CATALOG hello WITH(
 );
 ```
 
+## kafka source sink
+> only support json format
+```sql 
+CREATE CATALOG hello WITH(
+    'type' = 'kafka',
+    'base-url' = '127.0.0.1:9092',
+    'properties.group.id' = 'testGroup', 
+    'scan.startup.mode = 'earliest-offset'
+);
+```

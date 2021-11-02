@@ -1,7 +1,7 @@
 package com.github.apengda.fifio.odps.dialect;
 
-import com.github.apengda.fifio.jdbc.DbMetaDialect;
-import com.github.apengda.fifio.jdbc.DbMetaDialectFactory;
+import com.github.apengda.fifio.elasticsearch.DbMetaDialect;
+import com.github.apengda.fifio.elasticsearch.DbMetaDialectFactory;
 
 public class OdpsDialectFactory implements DbMetaDialectFactory {
 

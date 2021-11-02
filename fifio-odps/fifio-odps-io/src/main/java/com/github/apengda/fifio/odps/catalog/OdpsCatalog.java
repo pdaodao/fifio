@@ -1,12 +1,11 @@
 package com.github.apengda.fifio.odps.catalog;
 
-import com.github.apengda.fifio.jdbc.catalog.AbstractDbMetaCatalog;
-import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.elasticsearch.catalog.AbstractDbMetaCatalog;
+import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
 import com.github.apengda.fifio.odps.OdpsDynamicTableFactory;
 import org.apache.flink.table.catalog.ObjectPath;
 import org.apache.flink.table.factories.Factory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,13 +14,14 @@ import static org.apache.flink.table.factories.FactoryUtil.CONNECTOR;
 
 public class OdpsCatalog extends AbstractDbMetaCatalog {
 
-    public OdpsCatalog(String catalogName, String defaultDatabase, DbInfo dbInfo) {
-        super(catalogName, defaultDatabase, dbInfo);
+    public OdpsCatalog(String catalogName, String defaultDatabase,
+                       DbInfo dbInfo,
+                       Map<String, String> options) {
+        super(catalogName, defaultDatabase, dbInfo, options);
     }
 
     @Override
-    protected Map<String, String> buildTableProps(ObjectPath tablePath) {
-        final Map<String, String> props = new HashMap<>();
+    protected Map<String, String> buildTableProps(ObjectPath tablePath, Map<String, String> props) {
         props.put(CONNECTOR.key(), IDENTIFIER);
         props.put(URL.key(), dbInfo.getUrl());
         props.put(PROJECT.key(), tablePath.getDatabaseName());

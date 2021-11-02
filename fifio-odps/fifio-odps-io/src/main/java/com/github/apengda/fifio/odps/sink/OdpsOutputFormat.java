@@ -8,7 +8,7 @@ import com.aliyun.odps.data.Record;
 import com.aliyun.odps.data.RecordWriter;
 import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
-import com.github.apengda.fifio.base.util.DateTimeUtil;
+import com.github.apengda.fifio.base.DateTimeUtil;
 import com.github.apengda.fifio.odps.option.OdpsOptions;
 import com.github.apengda.fifio.odps.option.OdpsWriteOptions;
 import com.github.apengda.fifio.odps.util.OdpsUtil;

@@ -1,6 +1,6 @@
 package com.github.apengda.fifio.odps.option;
 
-import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
 import org.apache.flink.annotation.PublicEvolving;
 
 import javax.annotation.Nullable;

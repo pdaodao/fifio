@@ -1,6 +1,6 @@
 package com.github.apengda.fifio.odps;
 
-import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
 import com.github.apengda.fifio.odps.catalog.OdpsCatalog;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.catalog.Catalog;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalogFactoryOptions.*;
+import static com.github.apengda.fifio.elasticsearch.catalog.MyJdbcCatalogFactoryOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
 public class OdpsCatalogFactory implements CatalogFactory {
@@ -59,6 +59,6 @@ public class OdpsCatalogFactory implements CatalogFactory {
         return new OdpsCatalog(
                 context.getName(),
                 defaultDbName,
-                dbInfo);
+                dbInfo, null);
     }
 }

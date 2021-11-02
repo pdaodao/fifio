@@ -1,0 +1,2 @@
+com.github.apengda.fifio.elasticsearch.dialect.MySQLDialectFactory
+com.github.apengda.fifio.elasticsearch.dialect.PostgresDialectFactory
