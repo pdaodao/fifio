@@ -62,6 +62,15 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>
+                http://nexus-releases:8080/nexus/content/repositories/snapshots/
+            </url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>

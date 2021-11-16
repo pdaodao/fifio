@@ -1,16 +1,13 @@
 package com.github.apengda.fifio.kafka;
 
-import com.github.apengda.fifio.elasticsearch.DbMetaDialect;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
-import com.github.apengda.fifio.elasticsearch.frame.TableInfo;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.TableInfo;
 import com.github.apengda.fifio.kafka.util.KafkaUtil;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.DescribeClusterOptions;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class KafkaDialect implements DbMetaDialect {
@@ -59,6 +56,18 @@ public class KafkaDialect implements DbMetaDialect {
             }
         }
         return tableInfo;
+    }
+
+    @Override
+    public List<String> buildWith(DbInfo dbInfo, String password, String tableName) {
+        final List<String> infos = new ArrayList<>();
+        infos.add("'connector' = 'kafka'");
+        infos.add(String.format("'properties.bootstrap.servers' = '%s'", dbInfo.getUrl()));
+        infos.add(String.format("'topic' = '%s'", tableName));
+        infos.add("'properties.group.id' = 'testGroup'");
+        infos.add("'scan.startup.mode' = 'earliest-offset'");
+        infos.add("'format' = 'json'");
+        return infos;
     }
 
     @Override

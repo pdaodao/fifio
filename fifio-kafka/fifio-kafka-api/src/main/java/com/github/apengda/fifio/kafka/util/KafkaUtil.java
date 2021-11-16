@@ -1,8 +1,8 @@
 package com.github.apengda.fifio.kafka.util;
 
 import com.github.apengda.fifio.base.JsonUtil;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
-import com.github.apengda.fifio.elasticsearch.frame.TableInfo;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.TableInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.Admin;

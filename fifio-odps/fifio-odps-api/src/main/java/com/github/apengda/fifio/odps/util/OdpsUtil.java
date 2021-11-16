@@ -4,7 +4,7 @@ import com.aliyun.odps.*;
 import com.aliyun.odps.account.Account;
 import com.aliyun.odps.account.AliyunAccount;
 import com.aliyun.odps.type.TypeInfo;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 
 import java.util.List;

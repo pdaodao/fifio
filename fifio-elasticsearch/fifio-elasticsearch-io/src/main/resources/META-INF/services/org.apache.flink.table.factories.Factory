@@ -1,1 +1,1 @@
-com.github.apengda.fifio.elasticsearch.ElasticsearchCatalogFactory
+com.github.apengda.fifio.jdbc.ElasticsearchCatalogFactory

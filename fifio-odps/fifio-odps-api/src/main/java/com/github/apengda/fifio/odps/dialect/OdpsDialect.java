@@ -4,10 +4,10 @@ import com.aliyun.odps.Odps;
 import com.aliyun.odps.OdpsType;
 import com.aliyun.odps.Table;
 import com.aliyun.odps.TableFilter;
-import com.github.apengda.fifio.elasticsearch.DbMetaDialect;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
-import com.github.apengda.fifio.elasticsearch.frame.TableInfo;
-import com.github.apengda.fifio.elasticsearch.util.DbUtil;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.TableInfo;
+import com.github.apengda.fifio.jdbc.util.DbUtil;
 import com.github.apengda.fifio.odps.util.OdpsUtil;
 import com.google.common.collect.Lists;
 
@@ -82,6 +82,18 @@ public class OdpsDialect implements DbMetaDialect {
             tableInfo.addColumn(tableColumn);
         });
         return tableInfo;
+    }
+
+    @Override
+    public List<String> buildWith(DbInfo dbInfo, String password, String tableName) {
+        final List<String> infos = new ArrayList<>();
+        infos.add("'connector' = 'odps'");
+        infos.add(String.format("'url' = '%s'", dbInfo.getUrl()));
+        infos.add(String.format("'project' = '%s'", dbInfo.getDbName()));
+        infos.add(String.format("'table' = '%s'", tableName));
+        infos.add(String.format("'access-id' = '%s'", dbInfo.getUsername()));
+        infos.add(String.format("'access-key' = '%s'", password));
+        return infos;
     }
 
     @Override

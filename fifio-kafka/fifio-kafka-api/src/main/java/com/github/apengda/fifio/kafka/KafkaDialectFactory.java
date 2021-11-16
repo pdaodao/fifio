@@ -1,7 +1,7 @@
 package com.github.apengda.fifio.kafka;
 
-import com.github.apengda.fifio.elasticsearch.DbMetaDialect;
-import com.github.apengda.fifio.elasticsearch.DbMetaDialectFactory;
+import com.github.apengda.fifio.jdbc.DbMetaDialect;
+import com.github.apengda.fifio.jdbc.DbMetaDialectFactory;
 
 public class KafkaDialectFactory implements DbMetaDialectFactory {
 

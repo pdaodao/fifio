@@ -1,8 +1,8 @@
 package com.github.apengda.fifio.kafka.catalog;
 
-import com.github.apengda.fifio.elasticsearch.catalog.AbstractDbMetaCatalog;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
-import com.github.apengda.fifio.elasticsearch.util.DbUtil;
+import com.github.apengda.fifio.jdbc.catalog.AbstractDbMetaCatalog;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.util.DbUtil;
 import com.github.apengda.fifio.kafka.KafkaDialect;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicTableFactory;
 import org.apache.flink.table.catalog.ObjectPath;

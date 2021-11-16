@@ -1,6 +1,6 @@
 package com.github.apengda.fifio.kafka;
 
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import com.github.apengda.fifio.kafka.catalog.KafkaCatalog;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.ConfigOption;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.github.apengda.fifio.elasticsearch.catalog.MyJdbcCatalogFactoryOptions.*;
+import static com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalogFactoryOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
 public class KafkaCatalogFactory implements CatalogFactory {

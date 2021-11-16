@@ -1,20 +1,19 @@
-package com.github.apengda.fifio.odps.dialect;
+package com.github.apengda.fifio.jdbc.dialect;
 
 import com.github.apengda.fifio.jdbc.DbMetaDialect;
 import com.github.apengda.fifio.jdbc.DbMetaDialectFactory;
 
-public class OdpsDialectFactory implements DbMetaDialectFactory {
-
+public class CommonMetaDialectFactory implements DbMetaDialectFactory {
     @Override
     public boolean accept(String url, String typeName) {
-        if (typeName == null) {
+        if (url == null) {
             return false;
         }
-        return "odps".equalsIgnoreCase(typeName.trim());
+        return url.startsWith("jdbc");
     }
 
     @Override
     public DbMetaDialect create() {
-        return new OdpsDialect();
+        return new CommonMetaDialect();
     }
 }

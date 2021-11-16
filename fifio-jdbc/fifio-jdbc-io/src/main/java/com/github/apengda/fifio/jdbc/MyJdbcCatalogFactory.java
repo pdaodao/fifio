@@ -1,7 +1,8 @@
-package com.github.apengda.fifio.odps;
+package com.github.apengda.fifio.jdbc;
 
+import com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalog;
 import com.github.apengda.fifio.jdbc.frame.DbInfo;
-import com.github.apengda.fifio.odps.catalog.OdpsCatalog;
+import com.github.apengda.fifio.jdbc.util.DbUtil;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.factories.CatalogFactory;
@@ -15,22 +16,22 @@ import java.util.Set;
 import static com.github.apengda.fifio.jdbc.catalog.MyJdbcCatalogFactoryOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 
-public class OdpsCatalogFactory implements CatalogFactory {
+public class MyJdbcCatalogFactory implements CatalogFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OdpsCatalogFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MyJdbcCatalogFactory.class);
 
     @Override
     public String factoryIdentifier() {
-        return OdpsConstant.IDENTIFIER;
+        return IDENTIFIER;
     }
 
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(BASE_URL);
         options.add(DEFAULT_DATABASE);
         options.add(USERNAME);
         options.add(PASSWORD);
+        options.add(BASE_URL);
         return options;
     }
 
@@ -50,13 +51,11 @@ public class OdpsCatalogFactory implements CatalogFactory {
         String defaultDbName = helper.getOptions().get(DEFAULT_DATABASE);
 
         DbInfo dbInfo = new DbInfo(
-                baseUrl,
+                DbUtil.buildUrl(baseUrl, defaultDbName),
                 helper.getOptions().get(USERNAME),
                 helper.getOptions().get(PASSWORD));
-        dbInfo.setDbType(OdpsConstant.IDENTIFIER);
-        dbInfo.setDbName(defaultDbName);
 
-        return new OdpsCatalog(
+        return new MyJdbcCatalog(
                 context.getName(),
                 defaultDbName,
                 dbInfo, null);

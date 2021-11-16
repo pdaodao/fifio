@@ -1,7 +1,7 @@
 package com.github.apengda.fifio.odps.catalog;
 
-import com.github.apengda.fifio.elasticsearch.catalog.AbstractDbMetaCatalog;
-import com.github.apengda.fifio.elasticsearch.frame.DbInfo;
+import com.github.apengda.fifio.jdbc.catalog.AbstractDbMetaCatalog;
+import com.github.apengda.fifio.jdbc.frame.DbInfo;
 import com.github.apengda.fifio.odps.OdpsDynamicTableFactory;
 import org.apache.flink.table.catalog.ObjectPath;
 import org.apache.flink.table.factories.Factory;
